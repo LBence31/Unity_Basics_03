@@ -7,7 +7,7 @@ public class Graph : MonoBehaviour
 	Transform pointPrefab;
 
 	[SerializeField, Range(2, 10)]
-	int range = 2; // if range is 3 then it will be x:[-3; -3]
+	int range = 2; // if [0-(range/2); 0+(range/2)]
 
 	[SerializeField, Range(10, 100)]
 	int resolution = 10;
@@ -23,18 +23,22 @@ public class Graph : MonoBehaviour
 		Vector3 position = Vector3.zero;
 		Vector3 Scale = Vector3.one * step;
 
-		points = new Transform[resolution];
+		points = new Transform[resolution * resolution];
 
-		for (int i = 0; i < points.Length; i++)
+		for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++)
 		{
+			if (x == resolution)
+			{
+				x = 0;
+				z++;
+			}
 			Transform point = points[i] = Instantiate(pointPrefab);
 
-			position.x = (i + 0.5f) * step - ((float)range / 2f);
-			//position.y = position.x * position.x * position.x;
+			position.x = (x + 0.5f) * step - ((float)range / 2f);
+			position.z = (z + 0.5f) * step - ((float)range / 2f);
 
 			point.localPosition = position;
 			point.localScale = Scale;
-
 			point.SetParent(transform, false);
 		}
 	}
@@ -61,7 +65,7 @@ public class Graph : MonoBehaviour
 				position.y = FunctionLibrary.Ripple(position.x, time); //Mathf.Sin(Mathf.PI * (position.x - time));
 			}*/
 
-			position.y = f(position.x, time);
+			position.y = f(position.x, position.z, time);
 			point.localPosition = position;
 		}
 	}
